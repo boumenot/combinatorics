@@ -1,13 +1,25 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard1.1;netstandard2.0;net461</TargetFrameworks>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+
     <Title>Combinatorics Library for .NET</Title>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageTags>combinatorics;permutation;combination;variation</PackageTags>
     <Description>A combinatorics library providing combinations, permutations &amp; variations. This nuget package wraps up Adrian Akison's original implementation. See: http://www.codeproject.com/Articles/26050/Permutations-Combinations-and-Variations-using-C-G</Description>
     <RootNamespace>Combinatorics.Collections</RootNamespace>
     <AssemblyName Condition="'$(CI)'!='true'">local.Combinatorics</AssemblyName>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net7.0|AnyCPU'">
+    <Optimize>false</Optimize>
+    <WarningLevel>2</WarningLevel>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net7.0|AnyCPU'">
+    <WarningLevel>2</WarningLevel>
   </PropertyGroup>
 
 </Project>
