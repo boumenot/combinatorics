@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Combinatorics.Collections;
+﻿using Combinatorics.Collections;
 using Xunit;
 
 namespace UnitTests
@@ -9,6 +8,16 @@ namespace UnitTests
     /// </summary>
     public class CombinatoricTests
     {
+        [Fact]
+        public void Performance()
+        {
+            var integers = Enumerable.Range(0, 60).ToList();
+            var c = new Combinations<int>(integers, 5, GenerateOption.WithoutRepetition);
+
+            Assert.True(c.All(x => x.ToArray().Length > 0));
+        }
+
+
         /// <summary>
         /// Standard permutations simply provide every single ordering of the input set.
         /// Permutations of {A B C}: {A B C}, {A C B}, {B A C}, {B C A}, {C A B}, {C B A}
