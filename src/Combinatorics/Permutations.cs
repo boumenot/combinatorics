@@ -22,7 +22,7 @@ namespace Combinatorics.Collections
     /// no comparer is required and T does not need to be IComparable.
     /// </remarks>
     /// <typeparam name="T">The type of the values within the list.</typeparam>
-    public sealed class Permutations<T> : IEnumerable<IReadOnlyList<T>>
+    public sealed class Permutations<T> : IEnumerable<List<T>>
     {
         /// <summary>
         /// Create a permutation set from the provided list of values.  
@@ -92,14 +92,14 @@ namespace Combinatorics.Collections
         /// Gets an enumerator for collecting the list of permutations.
         /// </summary>
         /// <returns>The enumerator.</returns>
-        public IEnumerator<IReadOnlyList<T>> GetEnumerator() => new Enumerator(this);
+        public IEnumerator<List<T>> GetEnumerator() => new Enumerator(this);
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         /// <summary>
         /// The enumerator that enumerates each meta-collection of the enclosing Permutations class.
         /// </summary>
-        public sealed class Enumerator : IEnumerator<IReadOnlyList<T>>
+        public sealed class Enumerator : IEnumerator<List<T>>
         {
             /// <summary>
             /// Construct a enumerator with the parent object.
@@ -157,12 +157,12 @@ namespace Combinatorics.Collections
             /// <summary>
             /// The current permutation.
             /// </summary>
-            public IReadOnlyList<T> Current
+            public List<T> Current
             {
                 get
                 {
                     if (_myPosition == Position.InSet)
-                        return new List<T>(_myValues);
+                        return this._myValues;
 
                     throw new InvalidOperationException();
                 }
@@ -249,17 +249,17 @@ namespace Combinatorics.Collections
             /// This is generated at Initialization and is used as a performance speed up rather that
             /// comparing T each time, much faster to let the CLR optimize around integers.
             /// </summary>
-            private readonly int[] _myLexicographicalOrders;
+            private int[] _myLexicographicalOrders;
 
             /// <summary>
             /// The list of values that are current to the enumerator.
             /// </summary>
-            private readonly List<T> _myValues;
+            private List<T> _myValues;
 
             /// <summary>
             /// The set of permutations that this enumerator enumerates.
             /// </summary>
-            private readonly Permutations<T> _myParent;
+            private Permutations<T> _myParent;
 
             /// <summary>
             /// Internal position type for tracking enumerator position.
@@ -329,13 +329,13 @@ namespace Combinatorics.Collections
         /// <summary>
         /// A list of T that represents the order of elements as originally provided.
         /// </summary>
-        private readonly List<T> _myValues;
+        private List<T> _myValues;
 
         /// <summary>
         /// Parallel array of integers that represent the location of items in the myValues array.
         /// This is generated at Initialization and is used as a performance speed up rather that
         /// comparing T each time, much faster to let the CLR optimize around integers.
         /// </summary>
-        private readonly int[] _myLexicographicOrders;
+        private int[] _myLexicographicOrders;
     }
 }

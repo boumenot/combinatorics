@@ -20,18 +20,21 @@ namespace Combinatorics.Collections
     /// {A A B} {A A B} {A B B} {A B B}
     /// </remarks>
     /// <typeparam name="T">The type of the values within the list.</typeparam>
-    public sealed class Combinations<T> : IEnumerable<IReadOnlyList<T>>
+    public sealed class Combinations<T> : IEnumerable<T[]>
     {
+        public Combinations(IEnumerable<T> values, int lowerIndex)
+            : this(values.ToArray(), lowerIndex)
+        {
+        }
+
         /// <summary>
         /// Create a combination set from the provided list of values.
         /// The upper index is calculated as values.Count, the lower index is specified.
         /// </summary>
         /// <param name="values">List of values to select combinations from.</param>
         /// <param name="lowerIndex">The size of each combination set to return.</param>
-        public Combinations(IEnumerable<T> values, int lowerIndex)
+        public Combinations(T[] values, int lowerIndex)
         {
-            _ = values ?? throw new ArgumentNullException(nameof(values));
-
             // Copy the array and parameters and then create a map of booleans that will 
             // be used by a permutations object to reference the subset.
             // 
@@ -41,9 +44,9 @@ namespace Combinatorics.Collections
             // Note: For sorting reasons, false denotes inclusion in output.
 
             this.LowerIndex = lowerIndex;
-            _myValues = values.ToList();
-            var myMap = new List<bool>(_myValues.Count);
-            myMap.AddRange(_myValues.Select((t, i) => i < _myValues.Count - LowerIndex));
+            this._myValues = values;
+            var myMap = new List<bool>(this._myValues.Length);
+            myMap.AddRange(_myValues.Select((t, i) => i < this._myValues.Length - LowerIndex));
 
             _myPermutations = new Permutations<bool>(myMap);
         }
@@ -52,14 +55,14 @@ namespace Combinatorics.Collections
         /// Gets an enumerator for collecting the list of combinations.
         /// </summary>
         /// <returns>The enumerator.</returns>
-        public IEnumerator<IReadOnlyList<T>> GetEnumerator() => new Enumerator(this);
+        public IEnumerator<T[]> GetEnumerator() => new Enumerator(this);
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         /// <summary>
         /// The enumerator that enumerates each meta-collection of the enclosing Combinations class.
         /// </summary>
-        public sealed class Enumerator : IEnumerator<IReadOnlyList<T>>
+        public sealed class Enumerator : IEnumerator<T[]>
         {
             /// <summary>
             /// Construct a enumerator with the parent object.
@@ -69,6 +72,8 @@ namespace Combinatorics.Collections
             {
                 _myParent = source;
                 _myPermutationsEnumerator = (Permutations<bool>.Enumerator)_myParent._myPermutations.GetEnumerator();
+                this._myCurrentIndex = -1;
+                this._myCurrentList = new T[this._myParent.LowerIndex]; 
             }
 
             void IEnumerator.Reset() => throw new NotSupportedException();
@@ -84,14 +89,16 @@ namespace Combinatorics.Collections
             public bool MoveNext()
             {
                 var ret = _myPermutationsEnumerator.MoveNext();
-                _myCurrentList = null;
+                this._myCurrentIndex = -1;
                 return ret;
             }
 
             /// <summary>
             /// The current combination
             /// </summary>
-            public IReadOnlyList<T> Current
+#pragma warning disable CA1819 // Properties should not return arrays
+            public T[] Current
+#pragma warning restore CA1819 // Properties should not return arrays
             {
                 get
                 {
@@ -125,18 +132,20 @@ namespace Combinatorics.Collections
             /// </remarks>
             private void ComputeCurrent()
             {
-                if (_myCurrentList != null)
+                if (this._myCurrentIndex >= 0)
                     return;
 
-                _myCurrentList = new List<T>(_myParent.LowerIndex);
                 var index = 0;
+                this._myCurrentIndex = 0;
+
                 var currentPermutation = _myPermutationsEnumerator.Current;
                 foreach (var p in currentPermutation)
                 {
                     if (!p)
                     {
-                        _myCurrentList.Add(_myParent._myValues[index]);
+                        _myCurrentList[this._myCurrentIndex] = _myParent._myValues[index];
                         ++index;
+                        ++this._myCurrentIndex;
                     }
                     else
                     {
@@ -148,12 +157,14 @@ namespace Combinatorics.Collections
             /// <summary>
             /// Parent object this is an enumerator for.
             /// </summary>
-            private readonly Combinations<T> _myParent;
+            private Combinations<T> _myParent;
+
+            private int _myCurrentIndex;
 
             /// <summary>
             /// The current list of values, this is lazy evaluated by the Current property.
             /// </summary>
-            private List<T>? _myCurrentList;
+            private T[] _myCurrentList;
 
             /// <summary>
             /// An enumerator of the parents list of lexicographic orderings.
@@ -171,7 +182,7 @@ namespace Combinatorics.Collections
         /// <summary>
         /// The upper index of the meta-collection, equal to the number of items in the initial set.
         /// </summary>
-        public int UpperIndex => _myValues.Count;
+        public int UpperIndex => _myValues.Length;
 
         /// <summary>
         /// The lower index of the meta-collection, equal to the number of items returned each iteration.
@@ -181,11 +192,11 @@ namespace Combinatorics.Collections
         /// <summary>
         /// Copy of values object is initialized with, required for enumerator reset.
         /// </summary>
-        private readonly List<T> _myValues;
+        private T[] _myValues;
 
         /// <summary>
         /// Permutations object that handles permutations on booleans for combination inclusion.
         /// </summary>
-        private readonly Permutations<bool> _myPermutations;
+        private Permutations<bool> _myPermutations;
     }
 }
