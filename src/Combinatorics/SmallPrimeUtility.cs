@@ -28,13 +28,7 @@ namespace Combinatorics.Collections
 
             while (i > 1)
             {
-#if NETSTANDARD1_1
-                var remainder = i % prime;
-                var divResult = remainder == 0 ? i / prime : 0;
-#else
                 var divResult = Math.DivRem(i, prime, out var remainder);
-#endif
-
                 if (remainder == 0)
                 {
                     factors.Add(prime);
