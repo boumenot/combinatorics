@@ -5,19 +5,10 @@
         <TestName>UnitTests.CombinatoricTests.Generate_Combinations_of_2_With_Repetition_On_6_Input_Items_Should_Create_21_Output_Items</TestName>
       </NamedTestSelector>
       <NamedTestSelector>
-        <TestName>UnitTests.CombinatoricTests.Generate_Combinations_of_3_Without_Repetition_On_6_Input_Items_Should_Create_20_Output_Items</TestName>
-      </NamedTestSelector>
-      <NamedTestSelector>
         <TestName>UnitTests.CombinatoricTests.Generate_Permutations_With_Repetition_On_4_Input_Items_Including_Duplicates_Should_Create_24_Output_Permutations</TestName>
       </NamedTestSelector>
       <NamedTestSelector>
-        <TestName>UnitTests.CombinatoricTests.Generate_Permutations_Without_Repetition_On_3_Unique_Input_Items_Should_Create_6_Output_Permutations</TestName>
-      </NamedTestSelector>
-      <NamedTestSelector>
         <TestName>UnitTests.CombinatoricTests.Generate_Variations_of_3_With_Repetition_On_6_Input_Items_Should_Create_216_Output_Items</TestName>
-      </NamedTestSelector>
-      <NamedTestSelector>
-        <TestName>UnitTests.CombinatoricTests.Generate_Variations_of_3_Without_Repetition_On_6_Input_Items_Should_Create_120_Output_Items</TestName>
       </NamedTestSelector>
     </IgnoredTests>
   </Settings>

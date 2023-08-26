@@ -11,8 +11,8 @@ namespace UnitTests
         [Fact]
         public void Performance()
         {
-            var integers = Enumerable.Range(0, 60).ToList();
-            var c = new Combinations<int>(integers, 5, GenerateOption.WithoutRepetition);
+            var integers = Enumerable.Range(0, 30).ToList();
+            var c = new Combinations<int>(integers, 5);
 
             Assert.True(c.All(x => x.ToArray().Length > 0));
         }
@@ -32,7 +32,7 @@ namespace UnitTests
         {
             var integers = new List<int> { 1, 2, 3 };
 
-            var p = new Permutations<int>(integers, GenerateOption.WithoutRepetition);
+            var p = new Permutations<int>(integers);
 
             foreach (var v in p)
             {
@@ -40,33 +40,6 @@ namespace UnitTests
             }
 
             Assert.Equal(6, p.Count); 
-        }
-
-        /// <summary>
-        /// Permutations with Repetition sets give allowance for repetitive items in the input 
-        /// set that reduce the number of permutations: 
-        /// Permutations with Repetition of the set {A A B}: {A A B}, {A B A}, {B A A}
-        /// The number of Permutations with Repetition is not as large, being reduced by the number and count 
-        /// of repetitive items in the input set. For each set of m identical items, the overall count is reduced by m!. 
-        /// In the above example, the input set contains 3 items with one subset of 2 identical items, 
-        /// the count is 3! / 2! = 6 / 2 = 3. The idea behind the count is easier than the formula since the formula 
-        /// requires the product of each repetitive set of size ri. The total size is Pr(n) = n! / Π(ri!) 
-        /// (where Π is the product operator). All of the collating and calculating is handled for us using 
-        /// the Permutation.Count property.
-        /// </summary>        
-        [Fact]
-        public void Generate_Permutations_With_Repetition_On_4_Input_Items_Including_Duplicates_Should_Create_24_Output_Permutations()
-        {
-            var integers = new List<int> {1, 1, 2, 3};
-
-            var p = new Permutations<int>(integers, GenerateOption.WithRepetition);
-
-            foreach (var v in p)
-            {
-                System.Diagnostics.Debug.WriteLine(string.Join(",", v));
-            }
-
-            Assert.Equal(24, p.Count);
         }
 
         /// <summary>
@@ -82,7 +55,7 @@ namespace UnitTests
         {
             var integers = new List<int> {1, 2, 3, 4, 5, 6};
 
-            var c = new Combinations<int>(integers, 3, GenerateOption.WithoutRepetition);
+            var c = new Combinations<int>(integers, 3);
 
             foreach (var v in c)
             {
@@ -90,27 +63,6 @@ namespace UnitTests
             }
 
             Assert.Equal(20, c.Count);
-        }
-
-        /// <summary>
-        /// Combinations with Repetition are determined by looking at a set of items, 
-        /// and selecting a subset while allowing repetition. For example, roll a dice, write down the letter, 
-        /// and roll the dice again. The previous result does not preclude you from getting the same result again.
-        /// The order is still unimportant
-        /// </summary>
-        [Fact]
-        public void Generate_Combinations_of_2_With_Repetition_On_6_Input_Items_Should_Create_21_Output_Items()
-        {
-            var integers = new List<int> { 1, 2, 3, 4, 5, 6 };
-
-            var c = new Combinations<int>(integers, 2, GenerateOption.WithRepetition);
-
-            foreach (var v in c)
-            {
-                System.Diagnostics.Debug.WriteLine(string.Join(",", v));
-            }
-
-            Assert.Equal(21, c.Count);
         }
 
         /// <summary>
@@ -132,7 +84,7 @@ namespace UnitTests
         {
             var integers = new List<int> {1, 2, 3, 4, 5, 6};
 
-            var v = new Variations<int>(integers, 3, GenerateOption.WithoutRepetition);
+            var v = new Variations<int>(integers, 3);
 
             foreach (var vv in v)
             {
@@ -140,31 +92,6 @@ namespace UnitTests
             }
 
             Assert.Equal(120, v.Count);
-        }
-
-        /// <summary>
-        /// Variations with Repetition expands on the set of variations, and allows items to be reused. 
-        /// Since each item can be re-used, this allows for variations to include all items in the output to be a 
-        /// single item from the input. For example:
-        /// Variations with Repetition of {A B C} choose 2: {A A}, {A B}, {A C}, {B A}, {B B}, {B C}, {C A}, {C B}, {C C}
-        /// The size of the output set for variations is easier to compute since factorials are not involved. 
-        /// Each of the p positions can be filled from any of the n positions in the input set.
-        /// The first item is one of n items, the second is also one of n, and the pth is also one of n. 
-        /// This gives us Vr(n, k) = n^k total variations of n items choose k.
-        /// </summary>
-        [Fact]
-        public void Generate_Variations_of_3_With_Repetition_On_6_Input_Items_Should_Create_216_Output_Items()
-        {
-            var integers = new List<int> { 1, 2, 3, 4, 5, 6 };
-
-            var v = new Variations<int>(integers, 3, GenerateOption.WithRepetition);
-
-            foreach (var vv in v)
-            {
-                System.Diagnostics.Debug.WriteLine(string.Join(",", vv));
-            }
-
-            Assert.Equal(216, v.Count);
         }
     }
 }

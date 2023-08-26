@@ -13,6 +13,7 @@ namespace Combinatorics.Collections
     /// When given a input collect {A A B}, the following sets are generated:
     /// MetaCollectionType.WithRepetition =>
     /// {A A B}, {A B A}, {A A B}, {A B A}, {B A A}, {B A A}
+    /// 
     /// MetaCollectionType.WithoutRepetition =>
     /// {A A B}, {A B A}, {B A A}
     /// 
@@ -34,42 +35,17 @@ namespace Combinatorics.Collections
         /// </summary>
         /// <param name="values">List of values to permute.</param>
         public Permutations(IEnumerable<T> values)
-            : this(values, GenerateOption.WithoutRepetition, null)
-        {
-        }
-
-        /// <summary>
-        /// Create a permutation set from the provided list of values.  
-        /// If type is MetaCollectionType.WithholdRepetitionSets, then values (T) must implement IComparable.  
-        /// If T does not implement IComparable use a constructor with an explicit IComparer.
-        /// </summary>
-        /// <param name="values">List of values to permute.</param>
-        /// <param name="type">The type of permutation set to calculate.</param>
-        public Permutations(IEnumerable<T> values, GenerateOption type)
-            : this(values, type, null)
+            : this(values, null)
         {
         }
 
         /// <summary>
         /// Create a permutation set from the provided list of values.  
         /// The values will be compared using the supplied IComparer.
-        /// The repetition type defaults to MetaCollectionType.WithholdRepetitionSets
         /// </summary>
         /// <param name="values">List of values to permute.</param>
         /// <param name="comparer">Comparer used for defining the lexicographic order.</param>
         public Permutations(IEnumerable<T> values, IComparer<T>? comparer)
-            : this(values, GenerateOption.WithoutRepetition, comparer)
-        {
-        }
-
-        /// <summary>
-        /// Create a permutation set from the provided list of values.  
-        /// If type is MetaCollectionType.WithholdRepetitionSets, then the values will be compared using the supplied IComparer.
-        /// </summary>
-        /// <param name="values">List of values to permute.</param>
-        /// <param name="type">The type of permutation set to calculate.</param>
-        /// <param name="comparer">Comparer used for defining the lexicographic order.</param>
-        public Permutations(IEnumerable<T> values, GenerateOption type, IComparer<T>? comparer)
         {
             _ = values ?? throw new ArgumentNullException(nameof(values));
 
@@ -91,40 +67,28 @@ namespace Combinatorics.Collections
             // Input array:          {A A B C D E E}
             // Lexicographic Orders: {1 1 2 3 4 5 5}
 
-            Type = type;
             _myValues = values.ToList();
             _myLexicographicOrders = new int[_myValues.Count];
 
-            if (type == GenerateOption.WithRepetition)
+            comparer ??= Comparer<T>.Default;
+            _myValues.Sort(comparer);
+            var j = 1;
+            if (_myLexicographicOrders.Length > 0)
             {
-                for (var i = 0; i < _myLexicographicOrders.Length; ++i)
-                {
-                    _myLexicographicOrders[i] = i;
-                }
-            }
-            else
-            {
-                comparer ??= Comparer<T>.Default;
-
-                _myValues.Sort(comparer);
-                var j = 1;
-                if (_myLexicographicOrders.Length > 0)
-                {
-                    _myLexicographicOrders[0] = j;
-                }
-
-                for (var i = 1; i < _myLexicographicOrders.Length; ++i)
-                {
-                    if (comparer.Compare(_myValues[i - 1], _myValues[i]) != 0)
-                    {
-                        ++j;
-                    }
-
-                    _myLexicographicOrders[i] = j;
-                }
+                _myLexicographicOrders[0] = j;
             }
 
-            Count = GetCount();
+            for (var i = 1; i < _myLexicographicOrders.Length; ++i)
+            {
+                if (comparer.Compare(_myValues[i - 1], _myValues[i]) != 0)
+                {
+                    ++j;
+                }
+
+                _myLexicographicOrders[i] = j;
+            }
+
+            this.Count = GetCount();
         }
 
         /// <summary>
@@ -312,17 +276,9 @@ namespace Combinatorics.Collections
         }
 
         /// <summary>
-        /// The count of all permutations that will be returned.
-        /// If <see cref="Type"/> is <see cref="GenerateOption.WithoutRepetition"/>, then this does not count equivalent result sets.  
-        /// I.e., count of permutations of "AAB" will be 3 instead of 6.  
-        /// If <see cref="Type"/> is <see cref="GenerateOption.WithRepetition"/>, then this is all combinations and is therefore N!, where N is the number of values in the input set.
+        /// The count of all permutations that will be returned. Does not count equivalent result sets.  
         /// </summary>
         public BigInteger Count { get; }
-
-        /// <summary>
-        /// The type of permutations set that is generated.
-        /// </summary>
-        public GenerateOption Type { get; }
 
         /// <summary>
         /// The upper index of the meta-collection, equal to the number of items in the input set.

@@ -14,13 +14,7 @@ namespace Combinatorics.Collections
     /// The number of possible combinations is defined as "10 choose 5", which is calculated as <c>(10!) / ((10 - 5)! * 5!)</c>.
     /// </summary>
     /// <remarks>
-    /// The MetaCollectionType parameter of the constructor allows for the creation of
-    /// two types of sets,  those with and without repetition in the output set when 
-    /// presented with repetition in the input set.
-    /// 
     /// When given a input collect {A B C} and lower index of 2, the following sets are generated:
-    /// MetaCollectionType.WithRepetition =>
-    /// {A A}, {A B}, {A C}, {B B}, {B C}, {C C}
     /// MetaCollectionType.WithoutRepetition =>
     /// {A B}, {A C}, {B C}
     /// 
@@ -34,59 +28,25 @@ namespace Combinatorics.Collections
         /// <summary>
         /// Create a combination set from the provided list of values.
         /// The upper index is calculated as values.Count, the lower index is specified.
-        /// Collection type defaults to MetaCollectionType.WithoutRepetition
         /// </summary>
         /// <param name="values">List of values to select combinations from.</param>
         /// <param name="lowerIndex">The size of each combination set to return.</param>
         public Combinations(IEnumerable<T> values, int lowerIndex)
-            : this(values, lowerIndex, GenerateOption.WithoutRepetition)
-        {
-        }
-
-        /// <summary>
-        /// Create a combination set from the provided list of values.
-        /// The upper index is calculated as values.Count, the lower index is specified.
-        /// </summary>
-        /// <param name="values">List of values to select combinations from.</param>
-        /// <param name="lowerIndex">The size of each combination set to return.</param>
-        /// <param name="type">The type of Combinations set to generate.</param>
-        public Combinations(IEnumerable<T> values, int lowerIndex, GenerateOption type)
         {
             _ = values ?? throw new ArgumentNullException(nameof(values));
 
             // Copy the array and parameters and then create a map of booleans that will 
-            // be used by a permutations object to reference the subset.  This map is slightly
-            // different based on whether the type is with or without repetition.
+            // be used by a permutations object to reference the subset.
             // 
-            // When the type is WithoutRepetition, then a map of upper index elements is
-            // created with lower index false's.  
+            // A map of upper index elements is created with lower index false's.  
             // E.g. 8 choose 3 generates:
             // Map: {1 1 1 1 1 0 0 0}
             // Note: For sorting reasons, false denotes inclusion in output.
-            // 
-            // When the type is WithRepetition, then a map of upper index - 1 + lower index
-            // elements is created with the falses indicating that the 'current' element should
-            // be included and the trues meaning to advance the 'current' element by one.
-            // E.g. 8 choose 3 generates:
-            // Map: {1 1 1 1 1 1 1 1 0 0 0} (7 trues, 3 falses).
 
-            Type = type;
-            LowerIndex = lowerIndex;
+            this.LowerIndex = lowerIndex;
             _myValues = values.ToList();
-            List<bool> myMap;
-            if (type == GenerateOption.WithoutRepetition)
-            {
-                myMap = new List<bool>(_myValues.Count);
-                myMap.AddRange(_myValues.Select((t, i) => i < _myValues.Count - LowerIndex));
-            }
-            else
-            {
-                myMap = new List<bool>(_myValues.Count + LowerIndex - 1);
-                for (var i = 0; i < _myValues.Count - 1; ++i)
-                    myMap.Add(true);
-                for (var i = 0; i < LowerIndex; ++i)
-                    myMap.Add(false);
-            }
+            var myMap = new List<bool>(_myValues.Count);
+            myMap.AddRange(_myValues.Select((t, i) => i < _myValues.Count - LowerIndex));
 
             _myPermutations = new Permutations<bool>(myMap);
         }
@@ -159,20 +119,12 @@ namespace Combinatorics.Collections
             /// which moves with this enumerator, is scanned differently based on the type.
             /// The items have only two values, true and false, which have different meanings:
             /// 
-            /// For type WithoutRepetition, the output is a straightforward subset of the input array.  
+            /// The output is a straightforward subset of the input array.  
             /// E.g. 6 choose 3 without repetition
             /// Input array:   {A B C D E F}
             /// Permutations:  {0 1 0 0 1 1}
             /// Generates set: {A   C D    }
             /// Note: size of permutation is equal to upper index.
-            /// 
-            /// For type WithRepetition, the output is defined by runs of characters and when to 
-            /// move to the next element.
-            /// E.g. 6 choose 5 with repetition
-            /// Input array:   {A B C D E F}
-            /// Permutations:  {0 1 0 0 1 1 0 0 1 1}
-            /// Generates set: {A   B B     D D    }
-            /// Note: size of permutation is equal to upper index - 1 + lower index.
             /// </remarks>
             private void ComputeCurrent()
             {
@@ -187,8 +139,7 @@ namespace Combinatorics.Collections
                     if (!p)
                     {
                         _myCurrentList.Add(_myParent._myValues[index]);
-                        if (_myParent.Type == GenerateOption.WithoutRepetition)
-                            ++index;
+                        ++index;
                     }
                     else
                     {
@@ -219,11 +170,6 @@ namespace Combinatorics.Collections
         /// and N is the subset size.  This is M! / (N! * (M-N)!).
         /// </summary>
         public BigInteger Count => _myPermutations.Count;
-
-        /// <summary>
-        /// The type of Combinations set that is generated.
-        /// </summary>
-        public GenerateOption Type { get; }
 
         /// <summary>
         /// The upper index of the meta-collection, equal to the number of items in the initial set.

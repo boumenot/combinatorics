@@ -27,32 +27,13 @@ namespace Combinatorics.Collections
         /// <summary>
         /// Create a variation set from the indicated list of values.
         /// The upper index is calculated as values.Count, the lower index is specified.
-        /// Collection type defaults to MetaCollectionType.WithoutRepetition
-        /// </summary>
-        /// <param name="values">List of values to select Variations from.</param>
-        /// <param name="lowerIndex">The size of each variation set to return.</param>
-        public Variations(IEnumerable<T> values, int lowerIndex)
-            : this(values, lowerIndex, GenerateOption.WithoutRepetition)
-        {
-        }
-
-        /// <summary>
-        /// Create a variation set from the indicated list of values.
-        /// The upper index is calculated as values.Count, the lower index is specified.
         /// </summary>
         /// <param name="values">List of values to select variations from.</param>
         /// <param name="lowerIndex">The size of each variation set to return.</param>
-        /// <param name="type">Type indicates whether to use repetition in set generation.</param>
-        public Variations(IEnumerable<T> values, int lowerIndex, GenerateOption type)
+        public Variations(IEnumerable<T> values, int lowerIndex)
         {
-            Type = type;
-            LowerIndex = lowerIndex;
+            this.LowerIndex = lowerIndex;
             _myValues = values.ToList();
-
-            if (type != GenerateOption.WithoutRepetition)
-            {
-                return;
-            }
 
             var myMap = new List<int>(_myValues.Count);
             var index = 0;
@@ -66,10 +47,7 @@ namespace Combinatorics.Collections
         /// Gets an enumerator for the collection of Variations.
         /// </summary>
         /// <returns>The enumerator.</returns>
-        public IEnumerator<IReadOnlyList<T>> GetEnumerator() =>
-            Type == GenerateOption.WithRepetition ?
-                (IEnumerator<IReadOnlyList<T>>) new EnumeratorWithRepetition(this) :
-                new EnumeratorWithoutRepetition(this);
+        public IEnumerator<IReadOnlyList<T>> GetEnumerator() => new EnumeratorWithoutRepetition(this);
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
@@ -265,10 +243,7 @@ namespace Combinatorics.Collections
                     if (position != int.MaxValue)
                     {
                         _myCurrentList[position] = _myParent._myValues[index];
-                        if (_myParent.Type == GenerateOption.WithoutRepetition)
-                        {
-                            ++index;
-                        }
+                        ++index;
                     }
                     else
                     {
@@ -300,12 +275,7 @@ namespace Combinatorics.Collections
         /// Variations with repetitions does not behave like other meta-collections and it's
         /// count is equal to N^P, where N is the upper index and P is the lower index.
         /// </remarks>
-        public BigInteger Count => Type == GenerateOption.WithoutRepetition ? _myPermutations!.Count : BigInteger.Pow(UpperIndex, LowerIndex);
-
-        /// <summary>
-        /// The type of Variations set that is generated.
-        /// </summary>
-        public GenerateOption Type { get; }
+        public BigInteger Count => _myPermutations!.Count;
 
         /// <summary>
         /// The upper index of the meta-collection, equal to the number of items in the initial set.
