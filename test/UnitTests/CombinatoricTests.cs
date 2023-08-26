@@ -1,4 +1,9 @@
-﻿using Combinatorics.Collections;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Cryptography;
+
+using Combinatorics.Collections;
 using Xunit;
 
 namespace UnitTests
@@ -8,6 +13,11 @@ namespace UnitTests
     /// </summary>
     public class CombinatoricTests
     {
+        private static string ToHexString(byte[] bs)
+        {
+            return string.Join(string.Empty, bs.Select(x => x.ToString("x2")));
+        }
+
         [Fact]
         public void Performance()
         {
@@ -17,6 +27,39 @@ namespace UnitTests
             Assert.True(c.All(x => x.ToArray().Length > 0));
         }
 
+        [Theory]
+        [InlineData(3, 2, "af769638713fb50c0ac50b98b17e9f1091531fa9")]
+        [InlineData(3, 3, "4ada414edc3ad469e73520dac1f4e9beff703796")]
+        [InlineData(6, 1, "7c68f6ce264a9eb359c5d83bab71a1390b2ac6ee")]
+        [InlineData(6, 2, "f0c4188916d55195315895801fe596e9c2b349c7")]
+        [InlineData(6, 3, "fbac2bc02c4c9598123500def57354e57e624686")]
+        [InlineData(6, 4, "729826ddf7b501245a8b2cadd37e12e433af01f7")]
+        [InlineData(6, 5, "92e9fc64fe4fc54f52a8e34055a31410d97a6ac8")]
+        [InlineData(6, 6, "7c68f6ce264a9eb359c5d83bab71a1390b2ac6ee")]
+        [InlineData(10, 3, "d974e1834f959a29a7c9f83fba2f6da5eb765aa6")]
+        [InlineData(20, 5, "def651f69c3dcb1578b231b87c3d31711e85a117")]
+        public void Combination_Sha1(int count, int size, string expectedChecksum)
+        {
+            var byteCount = size * sizeof(int);
+            int total = 0;
+            var integers = Enumerable.Range(1, count).ToArray();
+            var testSubject = new Combinations<int>(integers, size);
+
+            using (var sha = SHA1.Create())
+            {
+                foreach (var comb in testSubject)
+                {
+                    ++total;
+                    sha.TransformBlock(comb.SelectMany(BitConverter.GetBytes).ToArray(), 0, byteCount, null, 0);
+                }
+
+                sha.TransformFinalBlock(new byte[] { 0xbe, 0xef }, 0, 2);
+                var hash = ToHexString(sha.Hash);
+
+                Assert.Equal(expectedChecksum, hash);
+                Assert.Equal(total, testSubject.Count);
+            }
+        }
 
         /// <summary>
         /// Standard permutations simply provide every single ordering of the input set.
