@@ -20,7 +20,7 @@ namespace Combinatorics.Collections
         /// </summary>
         /// <param name="i">The number to factorize, must be positive.</param>
         /// <returns>A simple list of factors.</returns>
-        public static List<int> Factor(int i)
+        public static int[] Factor(int i)
         {
             var primeIndex = 0;
             var prime = PrimeTable[primeIndex];
@@ -41,7 +41,7 @@ namespace Combinatorics.Collections
                 }
             }
 
-            return factors;
+            return factors.ToArray();
         }
 
         /// <summary>
@@ -55,14 +55,14 @@ namespace Combinatorics.Collections
         /// <param name="numerator">Numerator argument, expressed as list of prime factors.</param>
         /// <param name="denominator">Denominator argument, expressed as list of prime factors.</param>
         /// <returns>Resultant, expressed as list of prime factors.</returns>
-        public static List<int> DividePrimeFactors(IEnumerable<int> numerator, IEnumerable<int> denominator)
+        public static int[] DividePrimeFactors(IEnumerable<int> numerator, IEnumerable<int> denominator)
         {
             _ = numerator ?? throw new ArgumentNullException(nameof(numerator));
             _ = denominator ?? throw new ArgumentNullException(nameof(denominator));
             var product = numerator.ToList();
             foreach (var prime in denominator)
                 product.Remove(prime);
-            return product;
+            return product.ToArray();
         }
 
         /// <summary>
@@ -93,7 +93,7 @@ namespace Combinatorics.Collections
         /// Small tables are best built using the Sieve Of Eratosthenes,
         /// Reference: http://primes.utm.edu/glossary/page.php?sort=SieveOfEratosthenes
         /// </summary>
-        private static IReadOnlyList<int> CalculatePrimes()
+        private static int[] CalculatePrimes()
         {
             // Build Sieve Of Eratosthenes
             var sieve = new BitArray(65536, true);
@@ -114,12 +114,12 @@ namespace Combinatorics.Collections
                     primes.Add(i);
             }
 
-            return primes;
+            return primes.ToArray();
         }
 
         /// <summary>
         /// A List of all primes from 2 to 2^16.
         /// </summary>
-        public static IReadOnlyList<int> PrimeTable { get; }
+        public static int[] PrimeTable { get; }
     }
 }
