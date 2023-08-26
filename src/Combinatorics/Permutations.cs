@@ -122,7 +122,7 @@ namespace Combinatorics.Collections
             /// </summary>
             /// <returns>True if successfully moved to next permutation, False if no more permutations exist.</returns>
             /// <remarks>
-            /// Continuation was tried (i.e. yield return) by was not nearly as efficient.
+            /// Continuation was tried (i.e. yield return) but was not nearly as efficient.
             /// Performance is further increased by using value types and removing generics, that is, the LexicographicOrder parellel array.
             /// This is a issue with the .NET CLR not optimizing as well as it could in this infrequently used scenario.
             /// </remarks>
