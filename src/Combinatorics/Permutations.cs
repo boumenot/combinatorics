@@ -22,7 +22,7 @@ namespace Combinatorics.Collections
     /// no comparer is required and T does not need to be IComparable.
     /// </remarks>
     /// <typeparam name="T">The type of the values within the list.</typeparam>
-    public sealed class Permutations<T> : IEnumerable<List<T>>
+    public sealed class Permutations<T> : IEnumerable<T[]>
     {
         /// <summary>
         /// Create a permutation set from the provided list of values.  
@@ -92,14 +92,14 @@ namespace Combinatorics.Collections
         /// Gets an enumerator for collecting the list of permutations.
         /// </summary>
         /// <returns>The enumerator.</returns>
-        public IEnumerator<List<T>> GetEnumerator() => new Enumerator(this);
+        public IEnumerator<T[]> GetEnumerator() => new Enumerator(this);
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         /// <summary>
         /// The enumerator that enumerates each meta-collection of the enclosing Permutations class.
         /// </summary>
-        public sealed class Enumerator : IEnumerator<List<T>>
+        public sealed class Enumerator : IEnumerator<T[]>
         {
             /// <summary>
             /// Construct a enumerator with the parent object.
@@ -108,10 +108,10 @@ namespace Combinatorics.Collections
             public Enumerator(Permutations<T> source)
             {
                 _ = source ?? throw new ArgumentNullException(nameof(source));
-                _myParent = source;
-                _myLexicographicalOrders = new int[source._myLexicographicOrders.Length];
-                _myValues = new List<T>(source._myValues.Count);
-                source._myLexicographicOrders.CopyTo(_myLexicographicalOrders, 0);
+                this._myParent = source;
+                this._myLexicographicalOrders = new int[source._myLexicographicOrders.Length];
+                this._myValues = source._myValues.ToArray();
+                source._myLexicographicOrders.CopyTo(this._myLexicographicalOrders, 0);
                 _myPosition = Position.BeforeFirst;
             }
 
@@ -131,17 +131,21 @@ namespace Combinatorics.Collections
                 switch (_myPosition)
                 {
                     case Position.BeforeFirst:
-                        _myValues.AddRange(_myParent._myValues);
-                        _myPosition = Position.InSet;
+                        for (int i = 0; i < this._myParent._myValues.Count; i++)
+                        {
+                            this._myValues[i] = this._myParent._myValues[i];
+                        }
+                        //this._myValues.AddRange(this._myParent._myValues);
+                        this._myPosition = Position.InSet;
                         break;
                     case Position.InSet:
-                        if (_myValues.Count < 2)
+                        if (this._myValues.Length < 2)
                         {
-                            _myPosition = Position.AfterLast;
+                            this._myPosition = Position.AfterLast;
                         }
                         else if (!NextPermutation())
                         {
-                            _myPosition = Position.AfterLast;
+                            this._myPosition = Position.AfterLast;
                         }
                         break;
                     case Position.AfterLast:
@@ -149,7 +153,7 @@ namespace Combinatorics.Collections
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
-                return _myPosition != Position.AfterLast;
+                return this._myPosition != Position.AfterLast;
             }
 
             object IEnumerator.Current => Current;
@@ -157,7 +161,9 @@ namespace Combinatorics.Collections
             /// <summary>
             /// The current permutation.
             /// </summary>
-            public List<T> Current
+#pragma warning disable CA1819 // Properties should not return arrays
+            public T[] Current
+#pragma warning restore CA1819 // Properties should not return arrays
             {
                 get
                 {
@@ -227,11 +233,11 @@ namespace Combinatorics.Collections
             private void Swap(int i, int j)
             {
                 var temp = _myValues[i];
-                _myValues[i] = _myValues[j];
-                _myValues[j] = temp;
-                _myKviTemp = _myLexicographicalOrders[i];
-                _myLexicographicalOrders[i] = _myLexicographicalOrders[j];
-                _myLexicographicalOrders[j] = _myKviTemp;
+                this._myValues[i] = this._myValues[j];
+                this._myValues[j] = temp;
+                this._myKviTemp = this._myLexicographicalOrders[i];
+                this._myLexicographicalOrders[i] = this._myLexicographicalOrders[j];
+                this._myLexicographicalOrders[j] = this._myKviTemp;
             }
 
             /// <summary>
@@ -254,7 +260,7 @@ namespace Combinatorics.Collections
             /// <summary>
             /// The list of values that are current to the enumerator.
             /// </summary>
-            private List<T> _myValues;
+            private T[] _myValues;
 
             /// <summary>
             /// The set of permutations that this enumerator enumerates.
