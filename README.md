@@ -1,3 +1,20 @@
+# FORK
+
+This is a fork of [eoincampbell/combinatorics](https://github.com/eoincampbell/combinatorics).  My changes are purely performance focused. My fork sacrifices the project in the name of performance and *potentially* some performance.  The original repo is probably the better choice.
+
+In brief, the changes are:
+
+1. Upgrade to VS 2022.
+1. Support .NET 7 only.
+1. Support WithoutRepetition **only**
+1. Use array instead of (readonly) list.
+1. Avoid allocations as much as possible.
+1. Little more unit test coverage to ensure I did not regress anything.
+
+Performance improved by (unscientifically) 3 to 5x.
+
+# ORIGINAL
+
 [![Build status](https://ci.appveyor.com/api/projects/status/tr38vj9ebhokwsyi?svg=true)](https://ci.appveyor.com/project/eoincampbell/combinatorics)
 
 This project contains the Combinatorics Implementations of Adrian Akison, taken from his excellent CodeProject Article
